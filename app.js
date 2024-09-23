@@ -13,11 +13,15 @@ app.use(express.static("userImage"));
 const connectDb = require("./config/db");
 //.log("MongoDB URL:", process.env.MONGO_DB_URL);
 const productsRoutes = require("./routes/products.routes");
+const authRoutes = require('./routes/auth.routes')
+const userRoutes = require('./routes/user.routes')
 connectDb();
 
 app.use(cors());
 
 app.use("/products", productsRoutes);
+app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
 
 app.get("/test", (req, res) => {
   res.status(200).json({

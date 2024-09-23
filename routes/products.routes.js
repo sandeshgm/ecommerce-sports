@@ -21,7 +21,7 @@ const {
   updateProducts,
   getFeaturedProducts,
   getLatestPRoducts,
-} = require("../controllers/product.controllers");
+} = require("../controllers/productControllers/product.controllers");
 const idValidate = require("../validation/product.validators/product-id.validators");
 const searchValidate = require("../validation/product.validators/searchProduct.validator");
 const orderValidate = require("../validation/product.validators/sortByOrder.validator");
@@ -31,9 +31,11 @@ const {
   addProductsValidators,
   imageRequiredValidator,
 } = require("../validation/product.validators/addingProducts.validator");
+const { checkAuthAdmin } = require("../middleware/checkAuth.middleware");
 
 router.post(
   "/",
+  checkAuthAdmin,
   upload.single("image"),
   addProductsValidators,
   imageRequiredValidator,
@@ -50,7 +52,8 @@ router.get(
   getProducts
 );
 router.get("/:id", idValidate, getProductById);
-router.patch("/:id", idValidate, updateProducts);
-router.delete("/:id", idValidate, deleteProducts);
+router.patch("/:id",checkAuthAdmin, idValidate, updateProducts);
+router.delete("/:id",checkAuthAdmin, idValidate, deleteProducts);
 
 module.exports = router;
+
