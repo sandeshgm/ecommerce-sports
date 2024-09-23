@@ -14,11 +14,11 @@ const addProducts = async (req, res) => {
 };
 
 const getProducts = async (req, res) => {
-  const { page = 1, limit = 4 } = req.body;
+  const { page = 1, limit = 4 } = req.query;
 
   const sortByFilter = {};
-  if (req.body.order) {
-    sortByFilter.price = req.body.order; //here either desc or asc hooo
+  if (req.query.order) {
+    sortByFilter.price = req.query.order; //here either desc or asc hooo
   }
 
   const filter = { name: new RegExp(req.query.search, "i") }; // searhc by name product name
@@ -36,6 +36,8 @@ const getProducts = async (req, res) => {
     message: "Products fetched successfully",
     data: products,
     total: count,
+    limit,
+    page,
   });
 };
 

@@ -22,13 +22,35 @@ const {
   getFeaturedProducts,
   getLatestPRoducts,
 } = require("../controllers/product.controllers");
+const idValidate = require("../validation/product.validators/product-id.validators");
+const searchValidate = require("../validation/product.validators/searchProduct.validator");
+const orderValidate = require("../validation/product.validators/sortByOrder.validator");
+const paginationValidate = require("../validation/product.validators/pagination.validators");
+const priceMinMaxValidate = require("../validation/product.validators/maxmin-price.validators");
+const {
+  addProductsValidators,
+  imageRequiredValidator,
+} = require("../validation/product.validators/addingProducts.validator");
 
+router.post(
+  "/",
+  upload.single("image"),
+  addProductsValidators,
+  imageRequiredValidator,
+  addProducts
+);
 router.get("/featured", getFeaturedProducts);
 router.get("/latest", getLatestPRoducts);
-router.get("/", getProducts);
-router.get("/:id", getProductById);
-router.post("/", upload.single("image"), addProducts);
-router.patch("/:id", updateProducts);
-router.delete("/:id", deleteProducts);
+router.get(
+  "/",
+  searchValidate,
+  orderValidate,
+  paginationValidate,
+  priceMinMaxValidate,
+  getProducts
+);
+router.get("/:id", idValidate, getProductById);
+router.patch("/:id", idValidate, updateProducts);
+router.delete("/:id", idValidate, deleteProducts);
 
 module.exports = router;
