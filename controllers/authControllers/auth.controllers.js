@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET_KEY } = require("../../config/constants");
 
 const signUp = async (req, res) => {
-  const { password, profilePicture, ...remaining } = req.body;
+  console.log(req.body);
+  console.log(req.file);
+  const { password, image, ...remaining } = req.body;
   const user = await User.findOne({ email: req.body.email });
 
   if (user) {
@@ -16,11 +18,15 @@ const signUp = async (req, res) => {
 
   const salt = bcrypt.genSaltSync(10);
   const hashPassword = bcrypt.hashSync(password, salt);
-
+  console.log(req.file);
+  if (!req.file) {
+    console.log("Image not found");
+    return;
+  }
   await User.create({
     ...remaining,
     password: hashPassword,
-    profilePicture: req.file ? req.file.filename : null,
+    image: req.file.filename,
   });
   res.status(200).json({
     message: "User Successfully sign-up",

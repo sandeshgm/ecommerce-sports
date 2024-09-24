@@ -1,11 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const {
-  signUp,
-  signIn,
-  logOut,
-} = require("../controllers/authControllers/auth.controllers");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -16,11 +11,18 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + "." + fileExtension);
   },
 });
-
 const upload = multer({ storage: storage });
 
-router.post("/sign-up", upload.single("image"), signUp);
-router.post("/sign-in", signIn);
+const {
+  signUp,
+  signIn,
+  logOut,
+} = require("../controllers/authControllers/auth.controllers");
+const signUpValidate = require("../validation/auth.validators/signUpValidator");
+const signInValidate = require("../validation/auth.validators/signIn.validator");
+
+router.post("/sign-up", signUpValidate, upload.single("image"), signUp);
+router.post("/sign-in", signInValidate, signIn);
 router.post("/logout", logOut);
 
 module.exports = router;
