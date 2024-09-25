@@ -7,6 +7,7 @@ const storage = multer.diskStorage({
     cb(null, "userImage/");
   },
   filename: function (req, file, cb) {
+    console.log(file)
     const fileExtension = file.mimetype.split("/")[1];
     cb(null, Date.now() + "." + fileExtension);
   },
@@ -21,7 +22,7 @@ const {
 const signUpValidate = require("../validation/auth.validators/signUpValidator");
 const signInValidate = require("../validation/auth.validators/signIn.validator");
 
-router.post("/sign-up", signUpValidate, upload.single("image"), signUp);
+router.post("/sign-up", upload.single("image"), signUpValidate, signUp);
 router.post("/sign-in", signInValidate, signIn);
 router.post("/logout", logOut);
 

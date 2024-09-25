@@ -19,9 +19,9 @@ connectDb();
 
 app.use(cors());
 
-app.use("/products", productsRoutes);
-app.use('/auth', authRoutes);
-app.use('/user', userRoutes);
+app.use("/api/products", productsRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 
 app.get("/test", (req, res) => {
   res.status(200).json({
