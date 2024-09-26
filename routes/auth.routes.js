@@ -7,7 +7,7 @@ const storage = multer.diskStorage({
     cb(null, "userImage/");
   },
   filename: function (req, file, cb) {
-    console.log(file)
+    console.log(file);
     const fileExtension = file.mimetype.split("/")[1];
     cb(null, Date.now() + "." + fileExtension);
   },

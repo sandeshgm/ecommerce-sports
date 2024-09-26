@@ -52,8 +52,7 @@ router.get(
   getProducts
 );
 router.get("/:id", idValidate, getProductById);
-router.patch("/:id",checkAuthAdmin, idValidate, updateProducts);
-router.delete("/:id",checkAuthAdmin, idValidate, deleteProducts);
+router.patch("/:id", checkAuthAdmin, idValidate, updateProducts);
+router.delete("/:id", checkAuthAdmin, idValidate, deleteProducts);
 
 module.exports = router;
-
