@@ -50,7 +50,7 @@ const getProductById = async (req, res) => {
 };
 
 const updateProducts = async (req, res) => {
-  await Product.updateOne({ _id: req.params.id }, req.body);
+  await Product.updateOne({ _id: req.params.id }, {...req.body, image: req.file.filename});
   res.status(200).json({
     message: "Update successfully",
   });

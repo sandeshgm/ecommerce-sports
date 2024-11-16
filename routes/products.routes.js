@@ -52,7 +52,13 @@ router.get(
   getProducts
 );
 router.get("/:id", idValidate, getProductById);
-router.patch("/:id", checkAuthAdmin, idValidate, updateProducts);
+router.patch(
+  "/:id",
+  checkAuthAdmin,
+  idValidate,
+  upload.single("image"),
+  updateProducts
+);
 router.delete("/:id", checkAuthAdmin, idValidate, deleteProducts);
 
 module.exports = router;
