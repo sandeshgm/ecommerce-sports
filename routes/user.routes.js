@@ -10,7 +10,6 @@ const userGetValidate = require("../validation/User.validation.js/userGet.valida
 
 const router = express.Router();
 
-
 router.get("/", userGetValidate, checkAuthAdmin, getUser);
 router.get("/:id", userGetValidate, checkAuthAdmin, getSingleUser);
 router.patch("/:id", updateUser);

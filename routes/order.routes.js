@@ -6,7 +6,8 @@ const {
 } = require("../controllers/ordersControllers/order.controllers");
 const router = express.Router();
 
-router.post("/order", checkAuth, createOrder);
-router.get("/order", checkAuth, getOrder);
+router.post("/create", checkAuth, createOrder);
+
+router.get("/get", checkAuth, getOrder);
 
 module.exports = router;
