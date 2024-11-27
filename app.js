@@ -19,12 +19,14 @@ const productsRoutes = require("./routes/products.routes");
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
 const orderRoutes = require("./routes/order.routes");
+const esewaRoutes = require("./routes/esewa.routes");
 connectDb();
 
 app.use("/api/products", productsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/esewa", esewaRoutes);
 
 app.get("/test", (req, res) => {
   res.status(200).json({

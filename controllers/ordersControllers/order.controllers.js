@@ -5,7 +5,7 @@ const createOrder = async (req, res) => {
   try {
     //console.log(req.body);
     const products = req.body; // Expecting an array of { product, quantity }
-    console.log(products);
+   // console.log(products);
     if (!products || !Array.isArray(products) || products.length === 0) {
       return res.status(400).json({
         message: "Products array is required and cannot be empty.",
