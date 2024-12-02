@@ -19,10 +19,10 @@ const signUp = async (req, res) => {
   const salt = bcrypt.genSaltSync(10);
   const hashPassword = bcrypt.hashSync(password, salt);
   console.log(req.file);
-  if (!req.file) {
-    console.log("Image not found");
-    return;
-  }
+  // if (!req?.file) {
+  //   console.log("Image not found");
+  //   return;
+  // }
   await User.create({
     ...remaining,
     password: hashPassword,
