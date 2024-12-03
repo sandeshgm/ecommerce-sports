@@ -33,7 +33,7 @@ const createOrder = async (req, res) => {
   const order = await newOrder.save();
 
   const session = await stripe.checkout.sessions.create({
-    success_url: "https://localhost:5173/success",
+    success_url: "http://localhost:5173/success",
     line_items,
     mode: "payment",
     metadata: {

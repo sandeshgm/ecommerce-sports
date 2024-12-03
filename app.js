@@ -10,7 +10,6 @@ const cookiePraser = require("cookie-parser");
 app.use(cors());
 app.use(cookiePraser());
 
-
 const stripe = require("stripe")(
   "sk_test_51Q2veRFdsyKghVpvJerVaUlQTZ4CigvqrcmZ9GuK1hJnXh5q22MyXY8M00O1NUex1c5RmDrT4I7FMAPEZWhrWOcu00O8r16OIk"
 );
@@ -18,49 +17,45 @@ const stripe = require("stripe")(
 const endpointSecret =
   "whsec_aa1a6680b21a4f31b9a7af9f824969a0a36bb1ee2c9e2a9334904adc3a2fffde";
 
-
 app.post(
   "/webhook",
   express.raw({ type: "application/json" }),
   async (request, response) => {
     const sig = request.headers["stripe-signature"];
 
-    if (!sig) {
-      console.error("Missing Stripe signature header");
-      return response.status(400).send("Missing Stripe signature header");
-    }
+    // if (!sig) {
+    //   console.error("Missing Stripe signature header");
+    //   return response.status(400).send("Missing Stripe signature header");
+    // }
 
     let event;
 
     try {
       event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
     } catch (err) {
-      console.error("Webhook signature verification failed:", err.message);
-      return response.status(400).send(`Webhook Error: ${err.message}`);
+      response.status(400).send(`Webhook Error: ${err.message}`);
+      return;
     }
 
-    //console.log("Event received:", event.type);
-    //console.log(event);
+    console.log(event);
 
     switch (event.type) {
-      case "payment_intent.succeeded":
+      case "checkout.session.completed":
         const PaymentIntentSucceeded = event.data.object;
-        console.log(PaymentIntentSucceeded.metadata)
+        //console.log(PaymentIntentSucceeded.metadata);
         const orderId = PaymentIntentSucceeded.metadata.orderId;
+        console.log({ orderId });
         await Order.updateOne(
           { _id: orderId },
           {
-            status: "completer",
+            status: "completed",
           }
         );
         console.log("PaymentIntent was successful!");
         console.log("payment", PaymentIntentSucceeded);
         break;
-      case "payment_method.attached":
-        console.log("PaymentMethod was attached to a Customer!");
-        break;
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        break;
     }
 
     response.json({ received: true });
@@ -106,25 +101,31 @@ app.use("/", (err, req, res, next) => {
   });
 });
 
-const server = app.listen(port, () => {
+app.listen(port, () => {
   console.log(`App is listening on port: ${port}`);
 });
 
-server.on("clientError", (err, socket) => {
-  console.error("Client error encountered:", err.message);
+// server.on("clientError", (err, socket) => {
+//   console.log("Handling clientError event...");
+//   console.error("Client error encountered:", err.message);
 
-  if (!socket.destroyed) {
-    // Ensure socket isn't already destroyed
-    try {
-      // Respond with a proper HTTP 400 status
-      socket.end(
-        "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\n\r\nInvalid request method or format."
-      );
-    } catch (error) {
-      console.error("Error while responding to client error:", error.message);
-    }
+//   // Check if the socket is already destroyed before doing anything
+//   if (socket.destroyed) {
+//     console.log("Socket is already destroyed. Skipping further processing.");
+//   } else {
+//     console.log("Socket is not destroyed, proceeding with error handling...");
 
-    // Ensure the socket is destroyed only once
-    socket.destroy();
-  }
-});
+//     try {
+//       // Send a simple 400 Bad Request response to the client
+//       socket.end(
+//         "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\n\r\nInvalid request method or format."
+//       );
+
+//       // Destroy the socket after sending the response to avoid multiple actions
+//       socket.destroy();
+//       console.log("Socket destroyed after sending the response.");
+//     } catch (error) {
+//       console.error("Error while handling client error:", error.message);
+//     }
+//   }
+// });
