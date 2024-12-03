@@ -1,5 +1,5 @@
-require("dotenv").config();
 const express = require("express");
+require("dotenv").config();
 require("express-async-errors");
 
 const app = express();
@@ -23,11 +23,6 @@ app.post(
   async (request, response) => {
     const sig = request.headers["stripe-signature"];
 
-    // if (!sig) {
-    //   console.error("Missing Stripe signature header");
-    //   return response.status(400).send("Missing Stripe signature header");
-    // }
-
     let event;
 
     try {
@@ -41,24 +36,28 @@ app.post(
 
     switch (event.type) {
       case "checkout.session.completed":
-        const PaymentIntentSucceeded = event.data.object;
-        //console.log(PaymentIntentSucceeded.metadata);
-        const orderId = PaymentIntentSucceeded.metadata.orderId;
+        const paymentIntentSucceeded = event.data.object;
+        console.log(paymentIntentSucceeded.metadata);
+        const orderId = paymentIntentSucceeded.metadata.orderId;
         console.log({ orderId });
-        await Order.updateOne(
-          { _id: orderId },
-          {
-            status: "completed",
-          }
-        );
+        try {
+          await Order.updateOne(
+            { _id: orderId },
+            {
+              status: "completed",
+            }
+          );
+          console.log("order updated");
+        } catch (error) {
+          console.error("Error order update", error);
+        }
         console.log("PaymentIntent was successful!");
-        console.log("payment", PaymentIntentSucceeded);
+        console.log("payment", paymentIntentSucceeded);
         break;
       default:
-        break;
     }
 
-    response.json({ received: true });
+    response.send();
   }
 );
 
