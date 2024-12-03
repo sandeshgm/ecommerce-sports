@@ -10,49 +10,59 @@ const cookiePraser = require("cookie-parser");
 app.use(cors());
 app.use(cookiePraser());
 
-// Set your secret key. Remember to switch to your live secret key in production.
-// See your keys here: https://dashboard.stripe.com/apikeys
+
 const stripe = require("stripe")(
-  "sk_test_..."
+  "sk_test_51Q2veRFdsyKghVpvJerVaUlQTZ4CigvqrcmZ9GuK1hJnXh5q22MyXY8M00O1NUex1c5RmDrT4I7FMAPEZWhrWOcu00O8r16OIk"
 );
 
-
-const endpointSecret = "whsec_aa1a6680b21a4f31b9a7af9f824969a0a36bb1ee2c9e2a9334904adc3a2fffde";
-
-// This example uses Express to receive webhooks
+const endpointSecret =
+  "whsec_aa1a6680b21a4f31b9a7af9f824969a0a36bb1ee2c9e2a9334904adc3a2fffde";
 
 
-// Match the raw body to content type application/json
 app.post(
   "/webhook",
   express.raw({ type: "application/json" }),
-  (request, response) => {
+  async (request, response) => {
     const sig = request.headers["stripe-signature"];
+
+    if (!sig) {
+      console.error("Missing Stripe signature header");
+      return response.status(400).send("Missing Stripe signature header");
+    }
 
     let event;
 
     try {
       event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
     } catch (err) {
-      response.status(400).send(`Webhook Error: ${err.message}`);
+      console.error("Webhook signature verification failed:", err.message);
+      return response.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    // Handle the event
+    //console.log("Event received:", event.type);
+    //console.log(event);
+
     switch (event.type) {
       case "payment_intent.succeeded":
-        const paymentIntent = event.data.object;
+        const PaymentIntentSucceeded = event.data.object;
+        console.log(PaymentIntentSucceeded.metadata)
+        const orderId = PaymentIntentSucceeded.metadata.orderId;
+        await Order.updateOne(
+          { _id: orderId },
+          {
+            status: "completer",
+          }
+        );
         console.log("PaymentIntent was successful!");
+        console.log("payment", PaymentIntentSucceeded);
         break;
       case "payment_method.attached":
-        const paymentMethod = event.data.object;
         console.log("PaymentMethod was attached to a Customer!");
         break;
-      // ... handle other event types
       default:
-        console.log(`Unhandled event type ${event.type}`);
+        console.log(`Unhandled event type: ${event.type}`);
     }
 
-    // Return a response to acknowledge receipt of the event
     response.json({ received: true });
   }
 );
@@ -67,6 +77,7 @@ const productsRoutes = require("./routes/products.routes");
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
 const orderRoutes = require("./routes/order.routes");
+const Order = require("./models/orders.models");
 
 connectDb();
 
@@ -95,6 +106,25 @@ app.use("/", (err, req, res, next) => {
   });
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App is listening on port: ${port}`);
+});
+
+server.on("clientError", (err, socket) => {
+  console.error("Client error encountered:", err.message);
+
+  if (!socket.destroyed) {
+    // Ensure socket isn't already destroyed
+    try {
+      // Respond with a proper HTTP 400 status
+      socket.end(
+        "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\n\r\nInvalid request method or format."
+      );
+    } catch (error) {
+      console.error("Error while responding to client error:", error.message);
+    }
+
+    // Ensure the socket is destroyed only once
+    socket.destroy();
+  }
 });
