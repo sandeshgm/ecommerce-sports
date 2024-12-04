@@ -82,7 +82,17 @@ const getOrder = async (req, res) => {
   });
 };
 
+const deleteOrder = async (req, res) => {
+  await Order.deleteOne({_id : req.params.id});
+  res.status(200).json({
+    message: "Deleted successfully"
+  })
+}
+
+
+
 module.exports = {
   createOrder,
   getOrder,
+  deleteOrder,
 };

@@ -32,12 +32,12 @@ app.post(
       return;
     }
 
-    console.log(event);
+    //console.log(event);
 
     switch (event.type) {
       case "checkout.session.completed":
         const paymentIntentSucceeded = event.data.object;
-        console.log(paymentIntentSucceeded.metadata);
+        //console.log(paymentIntentSucceeded.metadata);
         const orderId = paymentIntentSucceeded.metadata.orderId;
         console.log({ orderId });
         try {
@@ -51,8 +51,8 @@ app.post(
         } catch (error) {
           console.error("Error order update", error);
         }
-        console.log("PaymentIntent was successful!");
-        console.log("payment", paymentIntentSucceeded);
+        //console.log("PaymentIntent was successful!");
+        //console.log("payment", paymentIntentSucceeded);
         break;
       default:
     }
